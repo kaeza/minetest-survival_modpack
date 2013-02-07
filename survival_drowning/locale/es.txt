@@ -1,0 +1,8 @@
+
+# Language: Español
+# Author: Diego Martínez <lkaezadl3@gmail.com>
+
+You are out of oxygen.::Te has quedado sin oxigeno.
+You drowned.::Te has ahogado.
+Oxygen Meter::Medidor de Oxigeno
+Oxygen::Oxigeno

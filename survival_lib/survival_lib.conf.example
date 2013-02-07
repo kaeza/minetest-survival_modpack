@@ -1,0 +1,42 @@
+
+# ==================
+# ===== common =====
+# ==================
+
+# Whether tool-based meters are enabled (boolean).
+meters_enabled = true
+
+# Interval between meter updates (in seconds)
+meter_check_interval = 1
+
+# ===========================
+# ===== survival_hunger =====
+# ===========================
+
+# Time before player starts to take hunger damage (in seconds)
+hunger.damage_start_time = 720
+
+# Interval before player takes damage again when hungry (in seconds)
+hunger.damage_interval = 30
+
+# Damage inflicted by hunger (in half hearts)
+hunger.damage = 4
+
+# Interval between state checks (in seconds)
+hunger.check_interval = 0.5
+
+# =============================
+# ===== survival_drowning =====
+# =============================
+
+# Time before player starts to take drowning damage (in seconds)
+drowning.damage_start_time = 20
+
+# Interval before player takes damage again when drowning (in seconds)
+drowning.damage_interval = 2
+
+# Damage inflicted by drowning (in half hearts)
+drowning.damage = 2
+
+# Interval between state checks (in seconds)
+drowning.check_interval = 0.5

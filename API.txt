@@ -1,0 +1,59 @@
+
+Survival Mod API
+----------------
+This is the Application Program Interface for the Survival Lib.
+Please note that this API is still WIP, so it may change in the future.
+
+Core
+----
+
+survival.create_meter(name, meterdef)
+  Creates a new custom meter. <name> must follow the `modname:itemname'
+  naming convention.
+
+meterdef = {
+  description = "My Fabulous Meter"
+    Description for the inventory.
+  command = <metercmddef>
+    Used to register a chat command to see the current value. See below.
+  recipe = { <recipe table> }
+    Recipe used to craft the meter item.
+  image = "modname_texname.png"
+    Image used both for wielding and in inventory.
+  get_value = func(player)
+    Must return the value to show both in the status message and in the
+    meter item. Returned value must be in range [0..100].
+  on_use = func(itemstack, user, pointed_thing)
+    Callback for when the item is used. Same as for itemdef.
+}
+
+metercmddef = {
+  name = "foo"
+    Name for the chat command.
+  label = "Foo"
+    Label for the chat command. If not specified defaults to <name>.
+    Invoking /cmdname outputs the following:
+      Label: [67%] ||||||
+}
+
+survival.distance3d(p1, p2)
+  Returns the distance between two 3D points. <p1> and <p2> are position
+  tables ({x=X,y=Y,z=Z}).
+
+Drowning Mod
+------------
+
+survival.drowning.register_liquid(name)
+  Registers the specified node name as liquid. Please rememeber you need
+  to register BOTH the _source and _flowing variants! Liquids registered
+  by this function are checked to see if the player is drowning, and are
+  also checked by the air bubbles. The mod already registers water, lava,
+  and oil (from the Oil Mod), both in source and flowing form.
+
+Hunger Mod
+----------
+
+survival.hunger.register_food(name)
+  Registers a new item as food. Please note that the mod registers most
+  known food items automatically, and also registers any item with the
+  "food" and/or "eatable" groups.
