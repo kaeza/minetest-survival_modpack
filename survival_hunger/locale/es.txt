@@ -2,6 +2,6 @@
 # Language: Español
 # Author: Diego Martínez <lkaezadl3@gmail.com>
 
-You died from starvation.::Has muerto de hambre.
-Hunger Meter::Medidor de Hambre
-Hunger::Hambre
+You died from starvation. = Has muerto de hambre.
+Hunger Meter = Medidor de Hambre
+Hunger = Hambre

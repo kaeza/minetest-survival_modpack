@@ -1,4 +1,8 @@
 
+# Example configuration file for survival_modpack.
+# To use it, put it in your world directory, rename it as `survival_lib.conf',
+#  and edit as required.
+
 # ==================
 # ===== common =====
 # ==================
@@ -40,3 +44,16 @@ drowning.damage = 2
 
 # Interval between state checks (in seconds)
 drowning.check_interval = 0.5
+
+# ===========================
+# ===== survival_thirst =====
+# ===========================
+
+# Time before showing warning about thirst (in seconds)
+thirst.start_time = 720
+
+# Interval before player dies from dehydration after being warned (in seconds)
+thirst.pass_out_time = 300
+
+# Interval between state checks (in seconds)
+thirst.check_interval = 0.5

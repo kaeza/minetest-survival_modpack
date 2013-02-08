@@ -5,8 +5,8 @@ Survival Mod for Minetest
 Copyright (C) 2013 Diego Martínez <lkaezadl3@gmail.com>
 
 This mod adds new hazards to the survival aspect of the game.
-Currently, this adds hunger and drowning. It's planned to add thirst,
-stamina (tiredness), and heat in the future.
+Currently, this adds hunger, thirst, and drowning. It's planned to add
+stamina (tiredness), and temperature in the future.
 
 See the file `LICENSE.txt' for information about distribution.
 

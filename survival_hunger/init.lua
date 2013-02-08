@@ -8,14 +8,14 @@ local DTIME = survival.conf_getnum("hunger.check_interval", 0.5);
 local S;
 if (minetest.get_modpath("intllib")) then
     dofile(minetest.get_modpath("intllib").."/intllib.lua");
-    S = intllib.load_strings("survival_hunger");
+    S = intllib.Getter(minetest.get_current_modname());
 else
     S = function ( s ) return s; end
 end
 
 local timer = 0;
 
-local hungry_players = { };
+local player_state = { };
 
 if (minetest.setting_getbool("enable_damage") and survival.conf_getbool("hunger.enabled", true)) then
     minetest.register_globalstep(function ( dtime )
@@ -24,23 +24,23 @@ if (minetest.setting_getbool("enable_damage") and survival.conf_getbool("hunger.
         timer = timer - DTIME;
         for i, v in ipairs(minetest.get_connected_players()) do
             local name = v:get_player_name();
-            if (not hungry_players[name]) then
-                hungry_players[name] = {
+            if (not player_state[name]) then
+                player_state[name] = {
                     count = 0;
                     hungry = false;
                     next = START_HUNGER_TIME;
                 };
             end
-            local hdata = hungry_players[name];
-            hdata.count = hdata.count + DTIME;
-            if ((v:get_hp() > 0) and (hdata.count >= hdata.next)) then
+            local state = player_state[name];
+            state.count = state.count + DTIME;
+            if ((v:get_hp() > 0) and (state.count >= state.next)) then
                 v:set_hp(v:get_hp() - HUNGER_DAMAGE);
                 if (v:get_hp() <= 0) then
                     minetest.chat_send_player(name, S("You died from starvation."));
                 end
-                hdata.count = hdata.count - hdata.next;
-                hdata.next = HUNGER_TIME;
-                hdata.hungry = true;
+                state.count = state.count - state.next;
+                state.next = HUNGER_TIME;
+                state.hungry = true;
                 minetest.sound_play({ name="survival_hunger_stomach" }, {
                     pos = v:getpos();
                     gain = 1.0;
@@ -57,13 +57,18 @@ survival.create_meter("survival_hunger:meter", {
         name = "hunger";
         label = S("Hunger");
     };
+    recipe = {
+        { "", "default:wood", "" },
+        { "default:wood", "default:apple", "default:wood" },
+        { "", "default:wood", "" },
+    };
     image = "survival_hunger_meter.png";
     get_value = function ( player )
         local name = player:get_player_name();
-        if (hungry_players[name].hungry) then
+        if (player_state[name].hungry) then
             return 0;
         else
-            return 100 * (START_HUNGER_TIME - hungry_players[name].count) / START_HUNGER_TIME;
+            return 100 * (START_HUNGER_TIME - player_state[name].count) / START_HUNGER_TIME;
         end
     end;
 });
@@ -109,20 +114,21 @@ local known_foods = {
 local function override_on_use ( def )
     local on_use = def.on_use;
     def.on_use = function ( itemstack, user, pointed_thing )
+        player_state[user:get_player_name()] = {
+            count = 0;
+            next = START_HUNGER_TIME;
+            hungry = false;
+        };
+        minetest.sound_play({ name="survival_hunger_eat" }, {
+            to_player = user:getpos();
+            gain = 1.0;
+        });
         if (on_use) then
-            local r = on_use(itemstack, user, pointed_thing);
-            hungry_players[user:get_player_name()] = {
-                count = 0;
-                hungry = false;
-                next = START_HUNGER_TIME;
-            };
-            minetest.sound_play({ name="survival_hunger_eat" }, {
-                to_player = user:getpos();
-                gain = 1.0;
-            });
-            return r;
+            return on_use(itemstack, user, pointed_thing);
+        else
+            itemstack:take_item(1);
+            return itemstack;
         end
-        return itemstack;
     end
 end
 
@@ -132,21 +138,33 @@ minetest.after(1, function ( )
     for _,name in ipairs(known_foods) do
         local def = minetest.registered_items[name] or minetest.registered_nodes[name];
         if (def) then
-            override_on_use(def);
+            if ((not def.groups.survival_no_override) or (def.groups.survival_no_override == 0)) then
+                override_on_use(def);
+            end
         end
     end
 
     for name, def in pairs(minetest.registered_items) do
         if (def.groups and def.groups.food and (def.groups.food > 0)) then
-            override_on_use(def);
+            if ((not def.groups.survival_no_override) or (def.groups.survival_no_override == 0)) then
+                override_on_use(def);
+            end
         end
     end
 
 end);
 
+minetest.register_on_joinplayer(function ( player )
+    player_state[player:get_player_name()] = {
+        count = 0;
+        hungry = false;
+        next = START_HUNGER_TIME;
+    };
+end);
+
 minetest.register_on_dieplayer(function ( player )
     local name = player:get_player_name();
-    hungry_players[name] = {
+    player_state[name] = {
         count = 0;
         hungry = false;
         next = START_HUNGER_TIME;

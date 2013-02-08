@@ -1,9 +1,16 @@
 
-local TESTING = false;
-
 survival = { };
 
 survival.meters = { };
+
+-- Boilerplate to support localized strings if intllib mod is installed.
+local S;
+if (minetest.get_modpath("intllib")) then
+    dofile(minetest.get_modpath("intllib").."/intllib.lua");
+    S = intllib.Getter(minetest.get_current_modname());
+else
+    S = function ( s ) return s; end
+end
 
 survival.distance3d = function ( p1, p2 )
     local lenx = math.abs(p2.x - p1.x);
@@ -31,7 +38,7 @@ survival.create_meter = function ( name, def )
         end;
         minetest.register_chatcommand(def.command.name, {
             params = "";
-            description = "Display "..lbl;
+            description = S("Display %s"):format(lbl);
             func = def.command.func;
         });
     end
@@ -48,7 +55,7 @@ end
 
 local chat_cmd_def = {
     params = "";
-    description = "Display all player stats";
+    description = S("Display all player stats");
     func = function ( name, param )
         for i, def in ipairs(survival.meters) do
             if (def.command and def.command.func and (not def.command.not_in_plstats)) then
@@ -82,12 +89,12 @@ minetest.register_globalstep(function ( dtime )
                 for i = 1, inv:get_size("main") do
                     local stack = inv:get_stack("main", i);
                     if (stack:get_name() == name) then
-                        local value = (65535 * def.get_value(player) / 100);
+                        local value = (65533 * def.get_value(player) / 100);
                         --local wear = stack:get_wear();
                         inv:remove_item("main", stack);
                         stack:add_wear(-65535);
                         stack:add_wear(65534);
-                        stack:add_wear(-(value - 2));
+                        stack:add_wear(-value);
                         inv:set_stack("main", i, stack);
                         break;
                     end
@@ -97,27 +104,3 @@ minetest.register_globalstep(function ( dtime )
     end
 
 end);
-
-if (TESTING) then
-    local ORIGIN = { x=0; y=0; z=0; };
-    local RESOLUTION = 50;
-    survival.create_meter("survival_lib:test_meter", {
-        description = "Survival Lib Test";
-        recipe = {
-            { "", "default:wood", "" },
-            { "default:wood", "", "default:wood" },
-            { "", "default:wood", "" },
-        };
-        image = "survival_utils_test_meter.png";
-        get_value = function ( player )
-            local dist = survival.distance3d(player:getpos(), ORIGIN);
-            dist = math.min(dist, RESOLUTION);
-            return 100 * dist / RESOLUTION;
-        end;
-        on_use = function ( itemstack, user, pointed_thing )
-            local dist = survival.distance3d(user:getpos(), ORIGIN);
-            minetest.chat_send_player(user:get_player_name(), "Distance to origin: "..dist);
-            return itemstack;
-        end;
-    });
-end

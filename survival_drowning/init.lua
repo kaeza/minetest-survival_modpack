@@ -1,7 +1,7 @@
 
 drowning = { };
 
-local players_under_water = { };
+local player_state = { };
 
 local START_DROWNING_TIME = survival.conf_getnum("drowning.damage_start_time", 20);
 local DROWNING_TIME = survival.conf_getnum("drowning.damage_interval", 2);
@@ -16,7 +16,7 @@ local liquids = { };
 local S;
 if (minetest.get_modpath("intllib")) then
     dofile(minetest.get_modpath("intllib").."/intllib.lua");
-    S = intllib.load_strings("survival_drowning");
+    S = intllib.Getter(minetest.get_current_modname());
 else
     S = function ( s ) return s; end
 end
@@ -49,43 +49,42 @@ if (minetest.setting_getbool("enable_damage") and survival.conf_getbool("drownin
         timer = timer - DTIME;
         for k, v in pairs(minetest.get_connected_players()) do
             name = v:get_player_name();
-            if (not players_under_water[name]) then
-                players_under_water[name] = { count=0, drowning=false };
+            if (not player_state[name]) then
+                player_state[name] = { count=0, drowning=false };
             end
-            local puw = players_under_water[name];
+            local puw = player_state[name];
             local pos = v:getpos()
             pos.y = pos.y + 1;
             if (is_player_under_liquid(v)) then
-                puw.count = puw.count + 0.5;
+                state.count = state.count + 0.5;
                 if (math.random(1, 100) < 20) then
                     if (not liquids[minetest.env:get_node({ x=pos.x; y=pos.y+8; z=pos.z}).name]) then
                         local bub = minetest.env:add_entity(pos, "survival_drowning:bubbles");
                         bub:setvelocity({ x=0; y=1; z=0 });
                     end
                 end
-                if ((not puw.drowning) and (puw.count >= START_DROWNING_TIME)) then
-                    players_under_water[name] = {count=0, drowning=true}
+                if ((not state.drowning) and (state.count >= START_DROWNING_TIME)) then
                     v:set_hp(v:get_hp() - DROWNING_DAMAGE);
                     minetest.sound_play({ name="drowning_gurp"; }, { pos = pos; gain = 1.0; max_hear_distance = 16; });
-                    puw.drowning = true;
-                    puw.count = puw.count - START_DROWNING_TIME;
+                    state.drowning = true;
+                    state.count = state.count - START_DROWNING_TIME;
                     minetest.chat_send_player(name, S("You are out of oxygen."));
-                elseif (puw.drowning and (puw.count >= DROWNING_TIME)) then
+                elseif (state.drowning and (state.count >= DROWNING_TIME)) then
                     v:set_hp(v:get_hp() - DROWNING_DAMAGE);
                     minetest.sound_play({ name="drowning_gurp"; }, { pos = pos; gain = 1.0; max_hear_distance = 16; });
-                    puw.count = puw.count - DROWNING_TIME;
+                    state.count = state.count - DROWNING_TIME;
                     if (v:get_hp() <= 0) then
                         minetest.chat_send_player(name, S("You drowned."));
                     end
                 end
             else
-                if (puw.count > 0) then
+                if (state.count > 0) then
                     pos = v:getpos();
                     pos.y = pos.y + 1;
                     minetest.sound_play({ name="drowning_gasp" }, { pos = pos; gain = 1.0; max_hear_distance = 32; });
                 end
-                puw.count = 0;
-                puw.drowning = false;
+                state.count = 0;
+                state.drowning = false;
             end
         end
     end)
@@ -126,13 +125,26 @@ survival.create_meter("survival_drowning:meter", {
         name = "o2";
         label = S("Oxygen");
     };
+    recipe = {
+        { "", "default:wood", "" },
+        { "default:wood", "default:glass", "default:wood" },
+        { "", "default:wood", "" },
+    };
     image = "survival_drowning_meter.png";
+    not_in_plstats = true;
     get_value = function ( player )
         local name = player:get_player_name();
-        if (players_under_water[name].drowning) then
+        if (player_state[name].drowning) then
             return 0.01;
         else
-            return 100 * (START_DROWNING_TIME - players_under_water[name].count) / START_DROWNING_TIME;
+            return 100 * (START_DROWNING_TIME - player_state[name].count) / START_DROWNING_TIME;
         end
     end;
 });
+
+minetest.register_on_joinplayer(function ( player )
+    player_state[player:get_player_name()] = {
+        count = 0;
+        drowning = false;
+    };
+end);
