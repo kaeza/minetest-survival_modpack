@@ -1,7 +1,7 @@
 
 survival = { };
 
-survival.meters = { };
+local player_states = { };
 
 -- Boilerplate to support localized strings if intllib mod is installed.
 local S;
@@ -21,82 +21,121 @@ survival.distance3d = function ( p1, p2 )
 end
 
 dofile(minetest.get_modpath("survival_lib").."/config.lua");
+dofile(minetest.get_modpath("survival_lib").."/chatcmds.lua");
 
-survival.create_meter = function ( name, def )
-    minetest.register_tool(name, {
-        description = def.description;
-        inventory_image = def.image;
-        on_use = def.on_use;
-    });
-    if (def.command and def.command.name) then
-        local lbl = (def.command.label or def.command.name);
-        def.command.func = function ( name, param )
-            local ply = minetest.env:get_player_by_name(name);
-            local val = math.floor(def.get_value(ply));
+survival.registered_states = { };
+
+survival.register_state = function ( name, def )
+    if (def.item) then
+        if (def.item.name) then
+            minetest.register_tool(def.item.name, {
+                description = def.item.description or "<Unnamed item>";
+                inventory_image = def.item.inventory_image;
+                on_use = def.item.on_use;
+            });
+            if (def.item.recipe) then
+                minetest.register_craft({
+                    output = def.item.name;
+                    recipe = def.item.recipe;
+                });
+            end
+        else
+            def.item = nil;
+        end
+    end
+    if (def.command_name) then
+        local lbl = (def.label or def.command_name);
+        def.command_func = function ( name, param )
+            local val = math.floor(def.get_scaled_value(player_states[name][def.name]));
             local val2 = math.max(0, math.min(val / 10, 10));
             minetest.chat_send_player(name, lbl..": ["..val.."%] "..string.rep("|", val2));
         end;
-        minetest.register_chatcommand(def.command.name, {
+        minetest.register_chatcommand(def.command_name, {
             params = "";
             description = S("Display %s"):format(lbl);
-            func = def.command.func;
-        });
-    end
-    if (def.recipe) then
-        minetest.register_craft({
-            output = name;
-            recipe = def.recipe;
+            func = def.command_func;
         });
     end
     def.name = name;
-    survival.meters[name] = def;
-    survival.meters[#survival.meters + 1] = def;
+    survival.registered_states[name] = def;
+    survival.registered_states[#survival.registered_states + 1] = def;
+end
+
+survival.get_player_state = function ( name, stname )
+    if (name and stname and player_states[name]) then
+        return player_states[name][stname];
+    else
+        return nil;
+    end
+end
+
+survival.set_player_state = function ( name, stname, state )
+    if (name and stname and state) then
+        if (not player_states[name]) then
+            player_states[name] = { };
+        end
+        player_states[name][stname] = state;
+    end
+end
+
+survival.reset_player_state = function ( name, stname )
+    if (name and stname and survival.registered_states[stname]) then
+        player_states[name][stname] = survival.registered_states[stname].get_default();
+    end
 end
 
 local chat_cmd_def = {
     params = "";
     description = S("Display all player stats");
     func = function ( name, param )
-        for i, def in ipairs(survival.meters) do
-            if (def.command and def.command.func and (not def.command.not_in_plstats)) then
-                def.command.func(name, "");
+        for i, def in ipairs(survival.registered_states) do
+            if (not def.not_in_plstats) then
+                local val = math.floor(def.get_scaled_value(player_states[name][def.name]));
+                local val2 = math.max(0, math.min(val / 10, 10));
+                minetest.chat_send_player(name, def.label..": ["..val.."%] "..string.rep("|", val2));
             end
         end
     end;
 };
 
-minetest.register_chatcommand("plstats", chat_cmd_def);
 minetest.register_chatcommand("s", chat_cmd_def);
 
 local timer = 0;
-local MAX_TIMER = 1;
+local MAX_TIMER = 0.5;
 
 minetest.register_globalstep(function ( dtime )
 
     timer = timer + dtime;
     if (timer < MAX_TIMER) then return; end
-
+    local tmr = timer;
     timer = timer - MAX_TIMER;
 
     for _,player in pairs(minetest.get_connected_players()) do
         local inv = player:get_inventory();
-        for name, def in pairs(survival.meters) do
-            if (def.on_step) then
-                def.on_step(player);
-            end
-            if (survival.conf_getbool("meters_enabled", true)
-             and inv:contains_item("main", ItemStack(name))) then
-                for i = 1, inv:get_size("main") do
-                    local stack = inv:get_stack("main", i);
-                    if (stack:get_name() == name) then
-                        local value = (65533 * def.get_value(player) / 100);
-                        --local wear = stack:get_wear();
-                        inv:remove_item("main", stack);
-                        stack:add_wear(-65535);
-                        stack:add_wear(65534);
-                        stack:add_wear(-value);
-                        inv:set_stack("main", i, stack);
-                        break;
+        local plname = player:get_player_name();
+        for i, def in ipairs(survival.registered_states) do
+            if (def.enabled) then
+                local name = def.name;
+                local state = player_states[plname][name];
+                if (def.on_update) then
+                    def.on_update(tmr, player, state);
+                end
+                if (survival.conf_getbool("meters_enabled", true)
+                 and def.item
+                 and inv
+                 and inv:contains_item("main", ItemStack(def.item.name))) then
+                    for i = 1, inv:get_size("main") do
+                        local stack = inv:get_stack("main", i);
+                        if (stack:get_name() == def.item.name) then
+                            local value = (65533 * def.get_scaled_value(state) / 100);
+                            value = math.max(0, math.min(value, 65533));
+                            inv:remove_item("main", stack);
+                            stack:add_wear(-65535);
+                            stack:add_wear(65534);
+                            stack:add_wear(-value);
+                            inv:set_stack("main", i, stack);
+                            break;
+                        end
                     end
                 end
             end
@@ -104,3 +143,107 @@ minetest.register_globalstep(function ( dtime )
     end
 
 end);
+
+minetest.register_on_joinplayer(function ( player )
+    local plname = player:get_player_name();
+    if (not player_states[plname]) then
+        player_states[plname] = { };
+    end
+    for i, def in ipairs(survival.registered_states) do
+        local name = def.name;
+        if (not player_states[plname][name]) then
+            player_states[plname][name] = def.get_default();
+        end
+    end
+end);
+
+local event_listeners = { };
+
+survival.register_on_event = function ( event, func )
+    if (not event_listeners[event]) then
+        event_listeners[event] = { };
+    end
+    event_listeners[event][#event_listeners[event]] = func;
+end
+
+survival.post_event = function ( event, ... )
+    if (not event_listeners[event]) then return; end
+    for _,func in ipairs(event_listeners[event]) do
+        local r = func(...);
+        if (r ~= nil) then return r; end
+    end
+end
+
+local STATEFILE = minetest.get_worldpath().."/survival_lib.states";
+
+local function load_table ( lines, index )
+    local t = { };
+    while (index <= #lines) do
+        local line = lines[index];
+        index = index + 1;
+        local c = line:sub(1, 1);
+        if (c == "{") then
+            local k = line:sub(2);
+            t[k], index = load_table(lines, index);
+        elseif (c == "}") then
+            return t, index;
+        elseif (c == "=") then
+            line = line:sub(2);
+            local p = line:find("=", 1, true);
+            local k = line:sub(1, p - 1);
+            local fullv = line:sub(p + 1);
+            local typ = fullv:sub(1, 1);
+            local v = fullv:sub(3);
+            if (typ == "S") then
+                -- `v' is unchanged
+            elseif (typ == "N") then
+                v = tonumber(v) or 0;
+            elseif (typ == "B") then
+                v = (v:lower() == "true");
+            end
+            t[k] = v;
+        end
+    end
+    return t, index;
+end
+
+local function load_states ( )
+    local f = io.open(STATEFILE);
+    if (not f) then return; end
+    local r = { };
+    local stack = { r };
+    local lines = { };
+    for line in f:lines() do
+        lines[#lines + 1] = line;
+    end
+    player_states = load_table(lines, 1);
+    f:close();
+end
+
+local function save_table ( f, t, name )
+    f:write("{"..name.."\n");
+    for k, v in pairs(t) do
+        if (type(v) == "table") then
+            save_table(f, v, k);
+        elseif (type(v) == "string") then
+            f:write("="..k.."=S:"..v.."\n");
+        elseif (type(v) == "number") then
+            f:write("="..k.."=N:"..v.."\n");
+        elseif (type(v) == "boolean") then
+            f:write("="..k.."=B:"..((v and "true") or "false").."\n");
+        end
+    end
+    f:write("}\n");
+end
+
+local function save_states ( )
+    local f = io.open(STATEFILE, "w");
+    if (not f) then return; end
+    for k, v in pairs(player_states) do
+        save_table(f, v, k);
+    end
+    f:close();
+end
+
+minetest.register_on_shutdown(save_states);
+load_states();

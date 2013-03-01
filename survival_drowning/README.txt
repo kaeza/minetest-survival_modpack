@@ -2,17 +2,24 @@
 Drowning Mod for Minetest
 This mod is part of the Survival Modpack for Minetest.
 Copyright (C) 2013 Diego Martínez <lkaezadl3@gmail.com>
-Inspired by the existing drowning mod [TODO: who's the author?]
+Inspired by the existing drowning mod by randomproof.
 
 See the file `../LICENSE.txt' for information about distribution.
 
-TECHNICAL NOTES
----------------
-To detect if the player is under water (to restore the oxygen timer), this
-mod has to know about all the nodes considered "liquid". It currently handles
-water_{source|flowing}, lava_{source|flowing}, and oil_{source|flowing} from
-the Oil Mod.
+This mod adds drowning to the game. The player can drown after being under
+ liquid (water, lava, etc.) for some time without breathing air again.
 
-The original drowning mod checked whether or not there was an air node at the
-player's head, but this was inaccurate as you could "drown" by standing
-"inside" a torch node, or other walkable nodes.
+When drowning, the player will be hurt (and will hear a hurt sound); If the
+ player does not get oxygen, he/she will be damaged again, and so on until
+ he does or dies.
+
+You can also craft a meter (or gauge). It shows your current hunger by means
+ of a colored bar under the item (like tool wear). Craft it like this:
+
+   +-------------+-------------+-------------+
+   |             | wood planks |             |
+   +-------------+-------------+-------------+
+   | wood planks | glass       | wood planks |
+   +-------------+-------------+-------------+
+   |             | wood planks |             |
+   +-------------+-------------+-------------+

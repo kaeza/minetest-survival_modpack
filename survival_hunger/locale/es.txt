@@ -5,3 +5,4 @@
 You died from starvation. = Has muerto de hambre.
 Hunger Meter = Medidor de Hambre
 Hunger = Hambre
+You are hungry. = Tienes hambre.

@@ -1,26 +1,37 @@
 
-Hunger Mod for Minetest
+Thirst Mod for Minetest
 This mod is part of the Survival Modpack for Minetest.
 Copyright (C) 2013 Diego Martínez <lkaezadl3@gmail.com>
-Inspired by the existing hunger mod [TODO: who's the author?]
 
 See the file `../LICENSE.txt' for information about distribution.
 
-TECHNICAL NOTES
----------------
-In order to detect if the player ate an item (to restore the hunger timer),
-this mod overrides the on_use callback of all known food items, resetting the
-timer and calling the callback to perform the actual healing. This has the
-advantage that the hunger timer is reset whenever the player "eats" the item,
-but new food items must be explicitly listed on the  script for the mod to
-"know" it's food.
+This mod adds thirst to the game. The player must drink some...drink...in
+ order to not die from dehydration.
 
-At first, this was implemented by checking whether the player's HP increased
-since the last check, but this has several disadvantages:
+A warning will be sent to the player when thirsty, and if the player does not
+ drink anything in a short time, he/she will die.
 
-  - It's not possible to have separate "hunger" and "thirst" if the drink
-    item increases HP, because this would also be taken as eating.
-  - When the HP is at max, eating a food item does not reset the hunger timer
-    since there was no increase in HP.
-  - Other healing mechanisms (such as the medikit blocks) may interfere with
-    the detection.
+It currently supports only a few drinks: The apple juice and carrot juice from
+ rubenwardy's Food mod, and a water glass defined by this mod. In all cases,
+ you get an empty drinking glass after using the item (provided you have space
+ in the inventory).
+
+The water glass uses the drinking glass from the `vessels' mod. It can be
+ obtained in these ways:
+  - Crafting it with a drinking glass + a bucket of water (shapeless recipe;
+     you get the bucket back), or...
+  - By punching a "Source of water" (like a sink; not to be confused with
+     `water_source') with an empty drinking glass. Currently supported
+     sources are the Kitchen Cabinet with Sink (from homedecor), and the
+     Bathroom Sink (from 3dforniture).
+
+You can also craft a meter (or gauge). It shows your current thirst by means
+ of a colored bar under the item (like tool wear). Craft it like this:
+
+   +-------------+--------------+-------------+
+   |             | wood planks  |             |
+   +-------------+--------------+-------------+
+   | wood planks | water bucket | wood planks |
+   +-------------+--------------+-------------+
+   |             | wood planks  |             |
+   +-------------+--------------+-------------+

@@ -2,7 +2,6 @@
 local START_HUNGER_TIME = survival.conf_getnum("hunger.damage_start_time", 720);
 local HUNGER_TIME = survival.conf_getnum("hunger.damage_interval", 30);
 local HUNGER_DAMAGE = survival.conf_getnum("hunger.damage", 4);
-local DTIME = survival.conf_getnum("hunger.check_interval", 0.5);
 
 -- Boilerplate to support localized strings if intllib mod is installed.
 local S;
@@ -16,62 +15,6 @@ end
 local timer = 0;
 
 local player_state = { };
-
-if (minetest.setting_getbool("enable_damage") and survival.conf_getbool("hunger.enabled", true)) then
-    minetest.register_globalstep(function ( dtime )
-        timer = timer + dtime;
-        if (timer < DTIME) then return; end
-        timer = timer - DTIME;
-        for i, v in ipairs(minetest.get_connected_players()) do
-            local name = v:get_player_name();
-            if (not player_state[name]) then
-                player_state[name] = {
-                    count = 0;
-                    hungry = false;
-                    next = START_HUNGER_TIME;
-                };
-            end
-            local state = player_state[name];
-            state.count = state.count + DTIME;
-            if ((v:get_hp() > 0) and (state.count >= state.next)) then
-                v:set_hp(v:get_hp() - HUNGER_DAMAGE);
-                if (v:get_hp() <= 0) then
-                    minetest.chat_send_player(name, S("You died from starvation."));
-                end
-                state.count = state.count - state.next;
-                state.next = HUNGER_TIME;
-                state.hungry = true;
-                minetest.sound_play({ name="survival_hunger_stomach" }, {
-                    pos = v:getpos();
-                    gain = 1.0;
-                    max_hear_distance = 16;
-                });
-            end
-        end
-    end);
-end
-
-survival.create_meter("survival_hunger:meter", {
-    description = S("Hunger Meter");
-    command = {
-        name = "hunger";
-        label = S("Hunger");
-    };
-    recipe = {
-        { "", "default:wood", "" },
-        { "default:wood", "default:apple", "default:wood" },
-        { "", "default:wood", "" },
-    };
-    image = "survival_hunger_meter.png";
-    get_value = function ( player )
-        local name = player:get_player_name();
-        if (player_state[name].hungry) then
-            return 0;
-        else
-            return 100 * (START_HUNGER_TIME - player_state[name].count) / START_HUNGER_TIME;
-        end
-    end;
-});
 
 -- Known food items (more suggestions are welcome)
 local known_foods = {
@@ -111,23 +54,38 @@ local known_foods = {
 
 };
 
+-- Special sounds, in case the default one is too silly.
+local known_foods_special_sounds = {
+    ["food:coffee"] = "survival_hunger_sip";
+    ["food:milk"] = "survival_hunger_sip";
+    ["food:chocolate_milk"] = "survival_hunger_sip";
+    ["food:hotchoco"] = "survival_hunger_sip";
+    ["food:ms_chocolate"] = "survival_hunger_sip"; 
+    ["animalmaterials:milk"] = "survival_hunger_sip";
+};
+
 local function override_on_use ( def )
     local on_use = def.on_use;
     def.on_use = function ( itemstack, user, pointed_thing )
-        player_state[user:get_player_name()] = {
-            count = 0;
-            next = START_HUNGER_TIME;
-            hungry = false;
-        };
-        minetest.sound_play({ name="survival_hunger_eat" }, {
-            to_player = user:getpos();
-            gain = 1.0;
-        });
-        if (on_use) then
-            return on_use(itemstack, user, pointed_thing);
-        else
-            itemstack:take_item(1);
-            return itemstack;
+        local state = survival.get_player_state(user:get_player_name(), "hunger");
+        if (not survival.post_event("hunger.eat", user, state)) then
+            survival.reset_player_state(user:get_player_name(), "hunger");
+            local soundname;
+            if (known_foods_special_sounds[itemstack:get_name()]) then
+                soundname = known_foods_special_sounds[itemstack:get_name()];
+            else
+                soundname = "survival_hunger_eat";
+            end
+            minetest.sound_play({ name=soundname }, {
+                to_player = user:getpos();
+                gain = 1.0;
+            });
+            if (on_use) then
+                return on_use(itemstack, user, pointed_thing);
+            else
+                itemstack:take_item(1);
+                return itemstack;
+            end
         end
     end
 end
@@ -154,19 +112,64 @@ minetest.after(1, function ( )
 
 end);
 
-minetest.register_on_joinplayer(function ( player )
-    player_state[player:get_player_name()] = {
-        count = 0;
-        hungry = false;
-        next = START_HUNGER_TIME;
+survival.register_state("hunger", {
+    label = S("Hunger");
+    item = {
+        name = "survival_hunger:meter";
+        description = S("Hunger Meter");
+        inventory_image = "survival_hunger_meter.png";
+        recipe = {
+            { "", "default:wood", "" },
+            { "default:wood", "default:apple", "default:wood" },
+            { "", "default:wood", "" },
+        };
     };
-end);
+    get_default = function ( )
+        return {
+            count = 0;
+            flag = false;
+        };
+    end;
+    get_scaled_value = function ( state )
+        if (state.flag) then
+            return 0;
+        else
+            return 100 * (START_HUNGER_TIME - state.count) / START_HUNGER_TIME;
+        end
+    end;
+    on_update = function ( dtime, player, state )
+        state.count = state.count + dtime;
+        if (state.flag and (state.count >= HUNGER_TIME)) then
+            if (not survival.post_event("hunger", player, state)) then
+                local hp = player:get_hp();
+                state.count = 0;
+                if ((hp > 0) and ((hp - HUNGER_DAMAGE) <= 0)) then
+                    minetest.chat_send_player(name, S("You died from starvation."));
+                    state.count = 0;
+                    state.flag = false;
+                end
+                player:set_hp(hp - HUNGER_DAMAGE);
+                minetest.sound_play({ name="survival_hunger_stomach" }, {
+                    pos = player:getpos();
+                    gain = 1.0;
+                    max_hear_distance = 16;
+                });
+            end
+        elseif ((not state.flag) and (state.count >= START_HUNGER_TIME)) then
+            if (not survival.post_event("hunger_start", player, state)) then
+                state.count = 0;
+                state.flag = true;
+                minetest.chat_send_player(name, S("You are hungry."));
+                minetest.sound_play({ name="survival_hunger_stomach" }, {
+                    pos = player:getpos();
+                    gain = 1.0;
+                    max_hear_distance = 16;
+                });
+            end
+        end
+    end;
+});
 
 minetest.register_on_dieplayer(function ( player )
-    local name = player:get_player_name();
-    player_state[name] = {
-        count = 0;
-        hungry = false;
-        next = START_HUNGER_TIME;
-    };
+    survival.reset_player_state(player:get_player_name(), "hunger");
 end);

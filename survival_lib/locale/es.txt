@@ -1,0 +1,6 @@
+
+# Language: Español
+# Author: Diego Martínez <lkaezadl3@gmail.com>
+
+Test Meter = Medidor de Prueba
+Display all player stats = Mostrar todas las estadisticas del jugador
