@@ -56,6 +56,9 @@ survival.register_state = function ( name, def )
             func = def.command_func;
         });
     end
+    if (def.enabled == nil) then
+        def.enabled = true;
+    end
     def.name = name;
     survival.registered_states[name] = def;
     survival.registered_states[#survival.registered_states + 1] = def;
@@ -108,7 +111,7 @@ minetest.register_globalstep(function ( dtime )
     timer = timer + dtime;
     if (timer < MAX_TIMER) then return; end
     local tmr = timer;
-    timer = timer - MAX_TIMER;
+    timer = 0;
 
     for _,player in pairs(minetest.get_connected_players()) do
         local inv = player:get_inventory();

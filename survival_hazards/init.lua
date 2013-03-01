@@ -79,7 +79,7 @@ minetest.register_globalstep(function ( dtime )
     dtime_count = dtime_count + dtime;
     if (dtime_count >= CHECK_INTERVAL) then
         local count = dtime_count;
-        dtime_count = dtime_count - CHECK_INTERVAL;
+        dtime_count = 0;
         for _, player in pairs(minetest.get_connected_players()) do
             local pos = player:getpos();
             local nodey0 = minetest.env:get_node(pos).name;
@@ -109,7 +109,7 @@ minetest.register_globalstep(function ( dtime )
                     for i = 1, inv:get_size("main") do
                         stack = inv:get_stack("main", i);
                         if ((stack:get_name() == "survival_hazards:suit")
-                         and (stack:get_wear() > wear)) then
+                         and ((65535 - stack:get_wear()) > wear)) then
                             index = i;
                             break;
                         end
