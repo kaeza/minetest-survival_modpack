@@ -123,29 +123,21 @@ minetest.register_globalstep(function ( dtime )
                 if (def.on_update) then
                     def.on_update(tmr, player, state);
                 end
-                if (survival.conf_getbool("meters_enabled", true)
-                 and def.item
-                 and inv
-                 and inv:contains_item("main", ItemStack(def.item.name))) then
-                    for i = 1, inv:get_size("main") do
-                        local stack = inv:get_stack("main", i);
-                        if (stack:get_name() == def.item.name) then
-                            local value = (65533 * def.get_scaled_value(state) / 100);
-                            value = math.max(0, math.min(value, 65533));
-                            inv:remove_item("main", stack);
-                            stack:add_wear(-65535);
-                            stack:add_wear(65534);
-                            stack:add_wear(-value);
-                            inv:set_stack("main", i, stack);
-                            break;
-                        end
-                    end
-                end
+                local value = (20 * def.get_scaled_value(state) / 100);
+                value = math.max(0, math.min(value, 20));
+                player:hud_change(player_states[plname][name].hudid, "number", value);
             end
         end
     end
 
 end);
+
+local HUD_DEFAULTS = {
+    pos = {x=0.525, y=0.903};
+    scale = {x=0.5, y=0.5};
+    icon = "default_stone.png";
+    number = 20;
+};
 
 minetest.register_on_joinplayer(function ( player )
     local plname = player:get_player_name();
@@ -158,6 +150,26 @@ minetest.register_on_joinplayer(function ( player )
             player_states[plname][name] = def.get_default();
         end
     end
+    minetest.after(0.5, function ( self )
+        for i, def in ipairs(survival.registered_states) do
+            local name = def.name;
+            player_states[plname][def.name].hudid = player:hud_add({
+                hud_elem_type = "statbar";
+                position = def.hud.pos or HUD_DEFAULTS.pos;
+                scale = def.hud.scale or HUD_DEFAULTS.scale;
+                text = def.hud.icon or HUD_DEFAULTS.icon;
+                number = def.hud.number or HUD_DEFAULTS.number;
+            });
+            local pos = def.hud.pos or HUD_DEFAULTS.pos;
+            pos = {x=pos.x + 0.01, y=pos.y - 0.01};
+            player_states[plname][def.name].hudid_label = player:hud_add({
+                hud_elem_type = "text";
+                position = pos;
+                text = def.label;
+                number = 0xFFFFFF;
+            });
+        end
+    end);
 end);
 
 local event_listeners = { };

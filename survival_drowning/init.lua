@@ -78,6 +78,10 @@ survival.register_state("oxygen", {
             { "", "default:wood", "" },
         };
     };
+    hud = {
+        pos = {x=0.525, y=0.903};
+        icon = "survival_drowning_hud.png";
+    };
     get_default = function ( )
         return {
             count = 0;

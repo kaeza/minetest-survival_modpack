@@ -129,6 +129,10 @@ survival.register_state("thirst", {
             { "", "default:wood", "" },
         };
     };
+    hud = {
+        pos = {x=0.325, y=0.850};
+        icon = "survival_thirst_hud.png";
+    };
     get_default = function ( )
         return {
             count = 0;

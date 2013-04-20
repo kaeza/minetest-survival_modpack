@@ -124,6 +124,10 @@ survival.register_state("hunger", {
             { "", "default:wood", "" },
         };
     };
+    hud = {
+        pos = {x=0.325, y=0.903};
+        icon = "survival_hunger_hud.png";
+    };
     get_default = function ( )
         return {
             count = 0;
