@@ -130,8 +130,9 @@ survival.register_state("thirst", {
         };
     };
     hud = {
-        pos = {x=0.325, y=0.850};
-        icon = "survival_thirst_hud.png";
+        pos = {x=0.720, y=0.965};
+        image = "survival_thirst_water_glass.png";
+        --image = "survival_thirst_hud.png";
     };
     get_default = function ( )
         return {

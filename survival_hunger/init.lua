@@ -52,6 +52,21 @@ local known_foods = {
     "animalmaterials:fish_bluewhite", "animalmaterials:fish_clownfish",
     "animalmaterials:milk",
 
+    -- The following list of foods was compiled by onpon4:
+
+    -- Simple Mobs (mobs)
+    "mobs:meat", "mobs:rat_cooked",
+
+    -- My Mobs (my_mobs)
+    "my_mobs:rabbit_cooked", "my_mobs:milk_bucket",
+    "my_mobs:milk_bottle_glass", "my_mobs:milk_glass_cup",
+    "my_mobs:milk_bottle_steel",
+
+    -- Fishing Mod (fishing)
+    "fishing:fish_raw", "fishing:fish", "fishing:sushi",
+
+    -- Cactus Mod (cactusmod)
+    "cactusmod:cactus_fruit",
 };
 
 -- Special sounds, in case the default one is too silly.
@@ -125,8 +140,9 @@ survival.register_state("hunger", {
         };
     };
     hud = {
-        pos = {x=0.325, y=0.903};
-        icon = "survival_hunger_hud.png";
+        pos = {x=0.730, y=0.945};
+        image = "default_apple.png";
+        --image = "survival_hunger_hud.png";
     };
     get_default = function ( )
         return {

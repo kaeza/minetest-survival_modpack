@@ -135,7 +135,7 @@ end);
 local HUD_DEFAULTS = {
     pos = {x=0.525, y=0.903};
     scale = {x=0.5, y=0.5};
-    icon = "default_stone.png";
+    image = "default_stone.png";
     number = 20;
 };
 
@@ -157,17 +157,17 @@ minetest.register_on_joinplayer(function ( player )
                 hud_elem_type = "statbar";
                 position = def.hud.pos or HUD_DEFAULTS.pos;
                 scale = def.hud.scale or HUD_DEFAULTS.scale;
-                text = def.hud.icon or HUD_DEFAULTS.icon;
+                text = def.hud.image or HUD_DEFAULTS.image;
                 number = def.hud.number or HUD_DEFAULTS.number;
             });
-            local pos = def.hud.pos or HUD_DEFAULTS.pos;
+            --[[local pos = def.hud.pos or HUD_DEFAULTS.pos;
             pos = {x=pos.x + 0.01, y=pos.y - 0.01};
             player_states[plname][def.name].hudid_label = player:hud_add({
                 hud_elem_type = "text";
                 position = pos;
                 text = def.label;
                 number = 0xFFFFFF;
-            });
+            });]]
         end
     end);
 end);
