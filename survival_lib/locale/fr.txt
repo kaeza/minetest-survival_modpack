@@ -1,0 +1,6 @@
+
+# Language: Français
+# Author: Jat
+
+Test Meter = Compteur de Test
+Display all player stats = Affichez les statistiques des joueurs.
