@@ -1,0 +1,8 @@
+
+# Language: Français
+# Author: Jat
+
+You died from starvation. = Vous êtes mort de faim.
+Hunger Meter = Compteur de Faim
+Hunger = Faim
+You are hungry. = Vous avez faim.
