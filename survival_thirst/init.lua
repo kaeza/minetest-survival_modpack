@@ -80,19 +80,6 @@ minetest.register_craftitem(":vessels:drinking_glass", {
 	end,
 })
 
-minetest.register_on_punchnode(function ( pos, node, puncher )
-    local item = puncher:get_wielded_item();
-    if ((item:get_name() == "vessels:drinking_glass")
-     and alt_water_sources[node.name]) then
-        local newitem = ItemStack("survival_thirst:water_glass 1");
-        local inv = puncher:get_inventory();
-        if (inv:room_for_item("main", newitem)) then
-            inv:remove_item("main", ItemStack(item:get_name().." 1"));
-            inv:add_item("main", newitem);
-        end
-    end
-end);
-
 minetest.register_craft({
     output = "survival_thirst:water_glass";
     type = "shapeless";
