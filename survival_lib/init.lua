@@ -83,7 +83,7 @@ end
 
 survival.reset_player_state = function ( name, stname )
     if (name and stname and survival.registered_states[stname]) then
-        player_states[name][stname] = survival.registered_states[stname].get_default();
+        player_states[name][stname] = survival.registered_states[stname].get_default(player_states[name][stname].hudid);
     end
 end
 
@@ -147,7 +147,7 @@ minetest.register_on_joinplayer(function ( player )
     for i, def in ipairs(survival.registered_states) do
         local name = def.name;
         if (not player_states[plname][name]) then
-            player_states[plname][name] = def.get_default();
+            player_states[plname][name] = def.get_default(player_states[plname][name].hudid);
         end
     end
     minetest.after(0.5, function ( self )
