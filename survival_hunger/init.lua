@@ -129,16 +129,6 @@ end);
 
 survival.register_state("hunger", {
     label = S("Hunger");
-    item = {
-        name = "survival_hunger:meter";
-        description = S("Hunger Meter");
-        inventory_image = "survival_hunger_meter.png";
-        recipe = {
-            { "", "default:wood", "" },
-            { "default:wood", "default:apple", "default:wood" },
-            { "", "default:wood", "" },
-        };
-    };
     hud = {
         pos = {x=0.730, y=0.945};
         image = "default_apple.png";
