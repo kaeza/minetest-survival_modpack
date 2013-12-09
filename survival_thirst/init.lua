@@ -64,14 +64,14 @@ minetest.register_craftitem(":vessels:drinking_glass", {
 		if pointed_thing.type ~= "node" then
 			return
 		end
-		local node = minetest.env:get_node(pointed_thing.under)
+		local node = minetest.get_node(pointed_thing.under)
 		if alt_water_sources[node.name] then
 			local newitem = ItemStack("survival_thirst:water_glass 1");
 			local inv = user:get_inventory();
 			if (inv:room_for_item("main", newitem)) then
 				inv:add_item("main", newitem);
 				if not(minetest.registered_items[node.name].liquidtype=="none") then
-					minetest.env:remove_node(pointed_thing.under);
+					minetest.remove_node(pointed_thing.under);
 				end
 				itemstack:take_item(); 
 				return itemstack

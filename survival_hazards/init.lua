@@ -82,8 +82,8 @@ minetest.register_globalstep(function ( dtime )
         dtime_count = 0;
         for _, player in pairs(minetest.get_connected_players()) do
             local pos = player:getpos();
-            local nodey0 = minetest.env:get_node(pos).name;
-            local nodey1 = minetest.env:get_node({ x=pos.x, y=pos.y+1, z=pos.z }).name;
+            local nodey0 = minetest.get_node(pos).name;
+            local nodey1 = minetest.get_node({ x=pos.x, y=pos.y+1, z=pos.z }).name;
             local name = player:get_player_name();
             local dmg0 = (materials[nodey0] and materials[nodey0].damage);
             local dmg1 = (materials[nodey1] and materials[nodey1].damage);
