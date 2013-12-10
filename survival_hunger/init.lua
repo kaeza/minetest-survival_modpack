@@ -144,8 +144,9 @@ survival.register_state("hunger", {
         image = "default_apple.png";
         --image = "survival_hunger_hud.png";
     };
-    get_default = function ( )
+    get_default = function ( hudidn )
         return {
+            hudid = hudidn;
             count = 0;
             flag = false;
         };

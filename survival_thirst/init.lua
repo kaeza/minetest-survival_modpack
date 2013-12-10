@@ -159,8 +159,9 @@ survival.register_state("thirst", {
         image = "survival_thirst_water_glass.png";
         --image = "survival_thirst_hud.png";
     };
-    get_default = function ( )
+    get_default = function ( hudidn )
         return {
+            hudid = hudidn;
             count = 0;
             thirsty = false;
         };
@@ -201,3 +202,7 @@ survival.register_state("thirst", {
         end
     end;
 });
+
+minetest.register_on_dieplayer(function ( player )
+    survival.reset_player_state(player:get_player_name(), "thirst");
+end);
