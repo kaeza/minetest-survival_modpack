@@ -156,6 +156,7 @@ minetest.register_on_joinplayer(function ( player )
             player_states[plname][def.name].hudid = player:hud_add({
                 hud_elem_type = "statbar";
                 position = def.hud.pos or HUD_DEFAULTS.pos;
+                offset = def.hud.offset;
                 scale = def.hud.scale or HUD_DEFAULTS.scale;
                 text = def.hud.image or HUD_DEFAULTS.image;
                 number = def.hud.number or HUD_DEFAULTS.number;

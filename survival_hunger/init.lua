@@ -140,7 +140,8 @@ survival.register_state("hunger", {
         };
     };
     hud = {
-        pos = {x=0.730, y=0.945};
+        pos = {x=0.5, y=0.9};
+        offset = {x=-175, y=-15};
         image = "default_apple.png";
         --image = "survival_hunger_hud.png";
     };
