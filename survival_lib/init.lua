@@ -26,23 +26,6 @@ dofile(minetest.get_modpath("survival_lib").."/chatcmds.lua");
 survival.registered_states = { };
 
 survival.register_state = function ( name, def )
-    if (def.item) then
-        if (def.item.name) then
-            minetest.register_tool(def.item.name, {
-                description = def.item.description or "<Unnamed item>";
-                inventory_image = def.item.inventory_image;
-                on_use = def.item.on_use;
-            });
-            if (def.item.recipe) then
-                minetest.register_craft({
-                    output = def.item.name;
-                    recipe = def.item.recipe;
-                });
-            end
-        else
-            def.item = nil;
-        end
-    end
     if (def.command_name) then
         local lbl = (def.label or def.command_name);
         def.command_func = function ( name, param )

@@ -144,16 +144,6 @@ end);
 
 survival.register_state("thirst", {
     label = S("Thirst");
-    item = {
-        name = "survival_thirst:meter";
-        description = S("Thirst Meter");
-        inventory_image = "survival_thirst_meter.png";
-        recipe = {
-            { "", "default:wood", "" },
-            { "default:wood", "vessels:drinking_glass", "default:wood" },
-            { "", "default:wood", "" },
-        };
-    };
     hud = {
         pos = {x=0.5, y=0.9};
         offset = {x=-10, y=-15};
