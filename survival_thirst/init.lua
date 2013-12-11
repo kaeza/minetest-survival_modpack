@@ -15,7 +15,7 @@ end
 local timer = 0;
 
 minetest.register_craftitem("survival_thirst:water_glass", {
-    description = "Glass of Water";
+    description = S("Glass of Water");
     inventory_image = "survival_thirst_water_glass.png";
     groups = { drink=1; survival_no_override=1; };
     stack_max = 10;
@@ -46,7 +46,7 @@ local alt_water_sources = {
 
 minetest.register_craftitem(":vessels:drinking_glass", {
 	--Or use minetest.registered_items[vessels:drinking_glass] for all parametre.
-	description = "Drinking Glass (empty)",
+	description = S("Drinking Glass (empty)"),
 	drawtype = "plantlike",
 	tiles = {"vessels_drinking_glass.png"},
 	inventory_image = "vessels_drinking_glass_inv.png",
