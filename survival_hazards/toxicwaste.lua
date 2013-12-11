@@ -69,7 +69,8 @@ bucket.register_liquid(
 	"survival_hazards:toxic_waste_source",
 	"survival_hazards:toxic_waste_flowing",
 	"survival_hazards:bucket_toxic_waste",
-	"survival_hazards_bucket_waste.png"
+	"survival_hazards_bucket_waste.png",
+	S("Toxic Waste Bucket")
 );
 
 survival.hazards.register_liquid("survival_hazards:toxic_waste", {

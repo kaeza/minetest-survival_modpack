@@ -5,5 +5,5 @@
 You died from dehydration. = Has muerto de deshidratacion.
 You are thirsty. = Tienes sed.
 Thirst = Sed
-Thirst Meter = Medidor de Sed
 Glass of Water = Vaso de Agua
+Drinking Glass (empty) = Vaso de Agua (vacío)
