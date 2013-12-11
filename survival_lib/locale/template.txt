@@ -1,21 +1,20 @@
 
-# Language: Français
-# Author: Jat
+# Language: 
+# Author: 
 
 ###init.lua###
-Display %s = Afficher %s
-Display all player stats = Affichez les statistiques des joueurs.
+Display %s = 
+Display all player stats = 
 
 ###chatcmds.lua###
-<command> <args>... = <commande> <arguments>...
-Configuration of survival_lib = Configuration de survival_lib
-No subcommand specified. = Pas de sous-commande spécifiée.
-Unknown subcommand . =  sous-commande
+<command> <args>... = 
+Configuration of survival_lib = 
+No subcommand specified. =
+Unknown subcommand . =  
 Missing privileges: %s =
 
 <subcommand> =
 Get help about a subcommand = 
-Unknown subcommand `%s'. =
 Available commands: %s =
 
 <state> =
