@@ -1,0 +1,35 @@
+
+# Language: Français
+# Author: Jat
+
+###init.lua###
+Display %s = Afficher %s
+Display all player stats = Affichez les statistiques des joueurs.
+
+###chatcmds.lua###
+<command> <args>... = <commande> <arguments>...
+Configuration of survival_lib = Configuration de survival_lib
+No subcommand specified. = Pas de sous-commande spécifiée.
+Unknown subcommand . =  sous-commande
+Missing privileges: %s =
+
+<subcommand> =
+Get help about a subcommand = 
+Unknown subcommand `%s'. =
+Available commands: %s =
+
+<state> =
+Enable a state = 
+Unknown state `%s'. = 
+State `%s' enabled. = 
+No state specified. =
+
+Disable a state = 
+State `%s' disabled. =
+
+Get the enabled/disabled flag of a state = 
+State `%s' is %s. = 
+Enabled = 
+Disabled = 
+
+List available states and enabled/disabled flags = 
