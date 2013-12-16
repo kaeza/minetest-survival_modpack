@@ -132,8 +132,7 @@ survival.register_state("hunger", {
     hud = {
         pos = {x=0.5, y=0.9};
         offset = {x=-175, y=-15};
-        image = "default_apple.png";
-        --image = "survival_hunger_hud.png";
+        image = "survival_hunger_hud_apple.png";
     };
     get_default = function ( hudidn )
         return {
