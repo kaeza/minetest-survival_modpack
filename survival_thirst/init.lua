@@ -147,8 +147,7 @@ survival.register_state("thirst", {
     hud = {
         pos = {x=0.5, y=0.9};
         offset = {x=-10, y=-15};
-        image = "survival_thirst_water_glass.png";
-        --image = "survival_thirst_hud.png";
+        image = "survival_thirst_hud_water_glass.png";
     };
     get_default = function ( hudidn )
         return {
