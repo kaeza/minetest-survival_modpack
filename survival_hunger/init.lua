@@ -34,12 +34,11 @@ local known_foods = {
     -- Farming Redo by TenPlus1
     "farming:baked_potato", "farming:blueberries", "farming:bread",
     "farming:carrot", "farming:carrot_gold", "farming:chocolate_dark",
-    "farming:coffee_cup", "farming:coffee_cup_hot", "farming:cookie",
-    "farming:corn", "farming:cucumber", "farming:donut",
+    "farming:cookie", "farming:corn", "farming:cucumber", "farming:donut",
     "farming:donut_apple", "farming:donut_chocolate", "farming:melon_slice",
     "farming:muffin_blueberry", "farming:potato", "farming:pumpkin_bread",
     "farming:pumpkin_slice", "farming:raspberries", "farming:rhubarb",
-    "farming:rhubarb_pie", "farming:smoothie_raspberry", "farming:tomato",
+    "farming:rhubarb_pie", "farming:tomato",
 
     -- rubenwardy's food --
     "food:cheese", "food:chocolate_dark", "food:chocolate_milk",
