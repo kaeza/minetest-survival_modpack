@@ -101,6 +101,10 @@ local known_drinks = {
     -- rubenwardy's food --
     "food:apple_juice", "food:cactus_juice",
 
+    -- Farming Redo by TenPlus1
+    "farming:coffee_cup", "farming:coffee_cup_hot",
+    "farming:smoothie_raspberry",
+
 };
 
 local function override_on_use ( def )
